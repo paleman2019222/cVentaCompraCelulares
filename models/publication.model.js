@@ -2,7 +2,7 @@
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var phoneSchema = Schema({
+var publicationSchema = Schema({
     name: String,
     description: String,
     stock: Number,
@@ -10,4 +10,4 @@ var phoneSchema = Schema({
     price: Number,
     status: Boolean
 })
-module.exports = mongoose.model('phone', phoneSchema);
+module.exports = mongoose.model('publication', publicationSchema);
