@@ -1,7 +1,7 @@
 {
-  "name": "appinventario",
+  "name": "cVentaCompraCelulares",
   "version": "1.0.0",
-  "description": "modelo y ejemplo de aplicacion de inventarios para portafolio",
+  "description": "Sistema web para venta y compra de",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

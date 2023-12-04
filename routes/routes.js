@@ -4,6 +4,7 @@ var express = require('express');
 var api = express.Router();
 var userController = require('../controllers/user.controller');
 var publicationController = require('../controllers/publication.controller');
+var transactionController = require('../controllers/transaction.controller');
 var mdAuth = require('../middlewares/authenticated'); 
 
 
@@ -16,6 +17,11 @@ api.get('/getUsers', [mdAuth.ensureAuth, mdAuth.ensureAuthAdmin], userController
 
 api.post('/createPublication/:idU',mdAuth.ensureAuth, publicationController.createPublication);
 api.post('/updatePublication/:idU/:idP',mdAuth.ensureAuth, publicationController.updatePublication);
-api.post('/deletePublication/:idU/:idP',mdAuth.ensureAuth, publicationController.deletePublication);
+api.delete('/deletePublication/:idU/:idP',mdAuth.ensureAuth, publicationController.deletePublication);
+api.get('/getPublications/:idU',mdAuth.ensureAuth,publicationController.getPublications);
+
+
+api.post('/buyObject/:idU/:idP',mdAuth.ensureAuth,transactionController.buyObject);
+api.get('/getSells/:idU',mdAuth.ensureAuth,transactionController.getSells);
 
 module.exports = api;

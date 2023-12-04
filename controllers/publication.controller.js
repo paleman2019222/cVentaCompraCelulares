@@ -6,6 +6,7 @@ var jwt = require("../services/jwt");
 var fs = require('fs');
 var path = require('path');
 
+
 async function createPublication(req, res){
     let userId = req.params.idU;
     var sale = new Publication();
@@ -94,8 +95,8 @@ async function deletePublication(req, res){
         try{
             const userFinded = await User.findById(userId);
             if(userFinded){
-                const publicationUpdated = await Publication.findByIdAndRemove(publicationId);
-                if(publicationUpdated){
+                const publicationRemoved = await Publication.findByIdAndRemove(publicationId);
+                if(publicationRemoved){
                     return res.status(200).send({message: 'Publicación eliminada correctamente'}); 
                 }else{
                     return res.status(500).send({message: 'No fue posible eliminar la publicación'}); 
@@ -112,9 +113,26 @@ async function deletePublication(req, res){
     }
 }
 
+async function getPublications(req, res){
+        let userId = req.params.idU;
+
+        if(userId!= req.user.sub){
+            return res.status(403).send({message: 'No tienes permisos para realizar esta acción'})
+        }
+
+        const allPublications = await Publication.find({});
+
+        if(allPublications){
+            res.status(200).send({message: 'Ofertas disponibles: ', allPublications})
+        }else{
+            res.status(401).send({message: 'No hay ofertas disponibles'})
+        }
+    }
+
 module.exports = {
     createPublication,
     updatePublication,
-    deletePublication
+    deletePublication,
+    getPublications
 }
  
