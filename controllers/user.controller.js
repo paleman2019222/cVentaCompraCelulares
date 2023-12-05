@@ -94,7 +94,7 @@ async function login(req, res) {
 
     if (params.username && params.password) {
         try {
-            User.findOne({ username: params.username }, (err, userFind) => {
+            User.findOne({ username: params.username }).exec((err, userFind) => {
                 if (err) {
                     console.log('Error al buscar usuario', err);
                     return res.status(500).send({ message: 'Error al buscar usuario' });
@@ -133,6 +133,7 @@ async function login(req, res) {
     } else {
         return res.status(500).send({ message: 'Ingrese usuario y contraseña' });
     }
+    
     
 }
 
