@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var app = require('./app');
-var port = process.env.PORT||8080;
+var port = process.env.PORT||3400;
 const userInit = require('./controllers/user.controller');
  
  

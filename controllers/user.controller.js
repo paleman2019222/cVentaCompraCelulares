@@ -2,6 +2,7 @@
 
 var User = require('../models/user.model');
 var bcrypt = require('bcrypt-nodejs');
+const bcryptjs = require('bcryptjs');
 var jwt = require("../services/jwt");
 var fs = require('fs');
 var path = require('path');
@@ -42,88 +43,99 @@ async function createInit(req, res) {
 }
 
 
-async function createUser(req, res){
+async function createUser(req, res) {
     let user = new User();
     var params = req.body;
 
-    if(params.name && params.username && params.phone && params.email && params.password){
+    if (params.name && params.username && params.phone && params.email && params.password) {
         try {
             const userFind = await User.findOne({ username: params.username });
-            const phoneFind = await User.findOne({phone: params.phone});
-            const emailFind = await User.findOne({email: params.email});
+            const phoneFind = await User.findOne({ phone: params.phone });
+            const emailFind = await User.findOne({ email: params.email });
+            
             if (userFind) {
                 console.log('El nombre de usuario ya está en uso');
-                return res.status(400).send({message: 'El nombre de usuario ya está en uso'});
-            }else if(phoneFind){
+                return res.status(400).send({ message: 'El nombre de usuario ya está en uso' });
+            } else if (phoneFind) {
                 console.log('El número de teléfono ingresado ya está en uso');
-                return res.status(400).send({message: 'El número de teléfono ingresado ya está en uso'});
-            }else if(emailFind){
+                return res.status(400).send({ message: 'El número de teléfono ingresado ya está en uso' });
+            } else if (emailFind) {
                 console.log('El email ingresado ya está en uso');
-                return res.status(400).send({message: 'El email ingresado ya está en uso'});
+                return res.status(400).send({ message: 'El email ingresado ya está en uso' });
             } else {
-                const passwordHash = await bcrypt.hashSync(params.password, null, null);
-    
+                const saltRounds = 10;
+                const passwordHash = await bcryptjs.hash(params.password, saltRounds);
+
                 user.username = params.username;
                 user.name = params.name;
                 user.role = 'ROLE_USER';
                 user.password = passwordHash;
                 user.phone = params.phone;
                 user.email = params.email;
-    
+
                 const userSaved = await user.save();
-    
+ 
                 if (userSaved) {
                     console.log('Usuario creado');
-                    return res.status(400).send({message: 'Usuario creado correctamente'});
+                    return res.status(400).send({ message: 'Usuario creado correctamente' });
                 } else {
                     console.log('Usuario no creado');
                 }
             }
         } catch (err) {
-           
+            console.error('Error al crear el usuario', err);
+            return res.status(500).send({ message: 'Error al crear el usuario' });
         }
-
-    }else{
-        return res.status(500).send({message: 'Debes llenar todos los campos'}); 
+    } else {
+        return res.status(500).send({ message: 'Debes llenar todos los campos' });
     }
-
 }
 
 async function login(req, res) {
     const params = req.body;
 
-if (params.username && params.password) {
-    try {
-        const userFind = await User.findOne({ username: params.username }).exec();
-
-        if (userFind) {
-            const passwordCheck = await bcrypt.compare(params.password, userFind.password);
-
-            if (passwordCheck) {
-                if (params.gettoken) {
-                    console.log('Sesión iniciada');
-                    return res.status(200).send({
-                        message: 'Sesión iniciada correctamente',
-                        token: jwt.createToken(userFind),
-                        userId: userFind._id,
-                        username: userFind.username,
-                        name: userFind.name,
-                        phone: userFind.phone,
-                        email: userFind.email
+    if (params.username && params.password) {
+        try {
+            User.findOne({ username: params.username }).exec((err, userFind) => {
+                if (err) {
+                    console.log('Error al buscar usuario', err);
+                    return res.status(500).send({ message: 'Error al buscar usuario' });
+                }
+    
+                if (userFind) {
+                    bcrypt.compare(params.password, userFind.password, (err, passwordCheck) => {
+                        if (err) {
+                            console.log('Error al comparar la contraseña', err);
+                            return res.status(500).send({ message: 'Error al comparar la contraseña' });
+                        }
+    
+                        if (passwordCheck) {
+                            if (params.gettoken) {
+                                console.log('Sesión iniciada');
+                                return res.status(200).send({
+                                    message: 'Sesión iniciada correctamente',
+                                    token: jwt.createToken(userFind),
+                                    userId: userFind._id,
+                                    username: userFind.username,
+                                    name: userFind.name,
+                                    phone: userFind.phone,
+                                    email: userFind.email
+                                });
+                            }
+                        } else {
+                            return res.status(404).send({ message: "Usuario o contraseña incorrecto(s)" });
+                        }
                     });
                 }
-            } else {
-                return res.status(404).send({ message: "Usuario o contraseña incorrecto(s)" });
-            }
+            });
+        } catch (err) {
+            console.log('Error al buscar usuario', err);
+            return res.status(500).send({ message: 'Error al buscar usuario' });
         }
-    } catch (err) {
-        console.log('Error al buscar usuario', err);
-        return res.status(500).send({ message: 'Error al buscar usuario' });
+    } else {
+        return res.status(500).send({ message: 'Ingrese usuario y contraseña' });
     }
-} else {
-    return res.status(500).send({ message: 'Ingrese usuario y contraseña' });
-}
-
+    
     
 }
 
