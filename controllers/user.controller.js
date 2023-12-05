@@ -102,7 +102,9 @@ async function login(req,res){
                         if(passwordCheck){
 
                             if(params.gettoken){
-                                res.send({
+                                console.log('Sesión iniciada');
+                                return res.status(400).send({message: 'Usuario creado correctamente',token: jwt.createToken(userFind)});
+                               /* res.send({
                                     token: jwt.createToken(userFind),
                                     userId: userFind._id,
                                     username: userFind.username,
@@ -110,7 +112,7 @@ async function login(req,res){
                                     phone: userFind.phone,
                                     email:userFind.email,
                                     message: 'Sesión iniciada correctamente'
-                                })
+                                })*/
                             }    
                         }else{
                             return res.status(404).send({message: "Usuario o contraseña incorrecto(s)"})
