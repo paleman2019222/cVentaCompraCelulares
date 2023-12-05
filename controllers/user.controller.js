@@ -91,43 +91,34 @@ async function createUser(req, res) {
     }
 }
 
+
 async function login(req, res) {
     const params = req.body;
 
     if (params.username && params.password) {
         try {
-            User.findOne({ username: params.username }).exec((err, userFind) => {
-                if (err) {
-                    console.log('Error al buscar usuario', err);
-                    return res.status(500).send({ message: 'Error al buscar usuario' });
+            const userFind = await User.findOne({ username: params.username });
+
+            if (userFind) {
+                const passwordCheck = await bcrypt.compare(params.password, userFind.password);
+
+                if (passwordCheck) {
+                    if (params.gettoken) {
+                        console.log('Sesión iniciada');
+                        return res.status(200).send({
+                            message: 'Sesión iniciada correctamente',
+                            token: jwt.createToken(userFind),
+                            userId: userFind._id,
+                            username: userFind.username,
+                            name: userFind.name,
+                            phone: userFind.phone,
+                            email: userFind.email
+                        });
+                    }
+                } else {
+                    return res.status(404).send({ message: "Usuario o contraseña incorrecto(s)" });
                 }
-    
-                if (userFind) {
-                    bcrypt.compare(params.password, userFind.password, (err, passwordCheck) => {
-                        if (err) {
-                            console.log('Error al comparar la contraseña', err);
-                            return res.status(500).send({ message: 'Error al comparar la contraseña' });
-                        }
-    
-                        if (passwordCheck) {
-                            if (params.gettoken) {
-                                console.log('Sesión iniciada');
-                                return res.status(200).send({
-                                    message: 'Sesión iniciada correctamente',
-                                    token: jwt.createToken(userFind),
-                                    userId: userFind._id,
-                                    username: userFind.username,
-                                    name: userFind.name,
-                                    phone: userFind.phone,
-                                    email: userFind.email
-                                });
-                            }
-                        } else {
-                            return res.status(404).send({ message: "Usuario o contraseña incorrecto(s)" });
-                        }
-                    });
-                }
-            });
+            }
         } catch (err) {
             console.log('Error al buscar usuario', err);
             return res.status(500).send({ message: 'Error al buscar usuario' });
@@ -135,9 +126,8 @@ async function login(req, res) {
     } else {
         return res.status(500).send({ message: 'Ingrese usuario y contraseña' });
     }
-    
-    
 }
+
 
 
 async function updateUser(req, res){
