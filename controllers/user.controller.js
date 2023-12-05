@@ -117,7 +117,7 @@ async function login(req, res) {
             }
         } catch (err) {
             console.log('Error al buscar usuario', err);
-            return res.status(500).send({ message: 'Error al buscar usuario' });
+            return res.status(500).send({ message: 'Error al buscar usuario',err });
         }
     } else {
         return res.status(500).send({ message: 'Ingrese usuario y contraseña' });
