@@ -1,22 +1,20 @@
-'use strict'
-var routes = require('./routes/routes');
+'use strict';
 var express = require('express');
 var bodyParser = require('body-parser');
+const cors = require('cors');
 var routes = require('./routes/routes');
-
 
 var app = express();
 
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(cors({
+    origin: '*',  // o especifica el origen de tu aplicación
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+}));
+app.options('*', cors());
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
-    res.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE');
-    next();
-});
-
 app.use('/api', routes);
+
 module.exports = app;
