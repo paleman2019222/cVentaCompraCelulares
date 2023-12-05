@@ -97,10 +97,10 @@ async function login(req, res) {
 
     if (params.username && params.password) {
         try {
-            const userFind = await User.findOne({ username: params.username });
+            const userFind = await User.findOne({ username: params.username});
 
             if (userFind) {
-                const passwordCheck = await bcrypt.compare(params.password, userFind.password);
+                const passwordCheck = await bcryptjs.compare(params.password, userFind.password);
 
                 if (passwordCheck) {
                     if (params.gettoken) {
@@ -118,6 +118,8 @@ async function login(req, res) {
                 } else {
                     return res.status(404).send({ message: "Usuario o contraseña incorrecto(s)" });
                 }
+            }else{
+                return res.status(404).send({ message: "Usuario no encontrado", message: params.username});
             }
         } catch (err) {
             console.log('Error al buscar usuario', err);

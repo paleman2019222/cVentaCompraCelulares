@@ -13,4 +13,4 @@ mongoose.connect('mongodb+srv://ale22462:v8VaDtntobrDGnHi@cluster0.9n1sllq.mongo
             console.log('Servidor corriendo sin problemas', port)
         })
     }) 
-    .catch((err)=>console.log('Error al conectase a la DB', err))
+    .catch((err)=>console.log('Error al conectase a la DB', err));
