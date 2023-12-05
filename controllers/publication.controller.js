@@ -50,37 +50,49 @@ async function createPublication(req, res){
     }
 }
 
-async function updatePublication(req, res){
+async function updatePublication(req, res) {
     let userId = req.params.idU;
     let publicationId = req.params.idP;
     let update = req.body;
 
-    if(userId != req.user.sub){
-        return res.status(404).send({message: 'No tienes permiso para realizar esta acción'});
-    }else{
-        const pubFinded = await Publication.findById(publicationId);
-        if(pubFinded.user == userId){
+    if (userId != req.user.sub) {
+        return res.status(404).send({ message: 'No tienes permiso para realizar esta acción' });
+    } else {
+        try {
+            const pubFinded = await Publication.findById(publicationId);
             
-        try{
+            if (!pubFinded) {
+                return res.status(404).send({ message: 'Publicación no encontrada' });
+            }
+
+            if (pubFinded.user !== userId) {
+                return res.status(403).send({ message: 'No puedes actualizar esta publicación' });
+            }
+
+            // Verificar si el stock es 0 y se están agregando más unidades
+            if (pubFinded.stock === 0 && 'stock' in update && update.stock > 0) {
+                update.status = true; // Cambiar status a true si el stock era 0 y se están agregando unidades
+            }
+
             const userFinded = await User.findById(userId);
-            if(userFinded){
-                const publicationUpdated = await Publication.findByIdAndUpdate(publicationId, update, {new: true});
-                if(publicationUpdated){
-                    return res.status(200).send({message: 'Publicación actualizada correctamente', publicationUpdated}); 
-                }else{
-                    return res.status(500).send({message: 'No fue posible actualizar la publicación'}); 
-                }
-            }else{
-                return res.status(500).send({message: 'Usuario no encontrado.'}); 
-            } 
-        }catch(err){
-        return res.status(500).send({message: 'Error al buscar el usuario.'});        
-        }
-        }else{
-            return res.status(404).send({message: 'No puedes actualizar esta publicación'});        
+
+            if (!userFinded) {
+                return res.status(404).send({ message: 'Usuario no encontrado' });
+            }
+
+            const publicationUpdated = await Publication.findByIdAndUpdate(publicationId, update, { new: true });
+
+            if (publicationUpdated) {
+                return res.status(200).send({ message: 'Publicación actualizada correctamente', publicationUpdated });
+            } else {
+                return res.status(500).send({ message: 'No fue posible actualizar la publicación' });
+            }
+        } catch (err) {
+            return res.status(500).send({ message: 'Error al buscar la publicación o el usuario', error: err });
         }
     }
-}
+} 
+
 
 async function deletePublication(req, res){
     let userId = req.params.idU;
@@ -127,7 +139,7 @@ async function getPublications(req, res){
         }else{
             res.status(401).send({message: 'No hay ofertas disponibles'})
         }
-    }
+    } 
 
 module.exports = {
     createPublication,

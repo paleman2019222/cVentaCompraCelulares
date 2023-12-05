@@ -23,5 +23,6 @@ api.get('/getPublications/:idU',mdAuth.ensureAuth,publicationController.getPubli
 
 api.post('/buyObject/:idU/:idP',mdAuth.ensureAuth,transactionController.buyObject);
 api.get('/getSells/:idU',mdAuth.ensureAuth,transactionController.getSells);
-
+api.get('/getPurchases/:idU',mdAuth.ensureAuth,transactionController.getPurchases);
+api.get('/getAllTransactions/:idU', [mdAuth.ensureAuth, mdAuth.ensureAuthAdmin],transactionController.getAllTransactions);
 module.exports = api;

@@ -80,9 +80,55 @@ async function getSells(req, res){
         }
 }
 
+async function getPurchases(req, res){
+    let userId = req.params.idU;
+
+    if(userId != req.user.sub){
+        return res.status(401).send({message: 'No tienes permiso para realizar esta acción'});
+    }
+
+        const sellsFinded = await Transaction.find({idpurchaser: userId});
+        if(sellsFinded){
+            return res.status(200).send({message: 'Tus Compras ', selss:sellsFinded});
+        }
+}
+
+async function getMyPublications(req, res){
+    let userId = req.params.idU;
+
+    if(userId != req.user.sub){
+        return res.status(401).send({message: 'No tienes permiso para realizar esta acción'});
+    }
+
+        const sellsFinded = await Publication.find({user: userId});
+        if(publicationsFinded){
+            return res.status(200).send({message: 'Tus Publicaciones ', publications:publicationsFinded});
+        }
+}
+
+async function getAllTransactions(req, res){
+    let userId = req.params.idU;
+
+    if(userId!= req.user.sub){
+        return res.status(403).send({message: 'No tienes permisos para realizar esta acción'})
+    }
+
+    const allTransaction = await Transaction.find({});
+
+    if(allTransaction){
+        res.status(200).send({message: 'Todas las transacciones', allTransaction})
+    }else{
+        res.status(401).send({message: 'No hay transacciones encontradas'})
+    }
+}
+
 
 module.exports = {
     buyObject,
-    getSells
+    getSells,
+    getPurchases,
+    getMyPublications,
+    getAllTransactions
+    
 
 }
