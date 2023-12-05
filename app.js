@@ -12,9 +12,10 @@ app.use(cors({
     credentials: true,
 }));
 app.options('*', cors());
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.use('/api', routes);
 
-module.exports = app;
+module.exports = app; 

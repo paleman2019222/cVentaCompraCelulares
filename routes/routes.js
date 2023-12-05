@@ -2,12 +2,17 @@
 
 var express = require('express');
 var api = express.Router();
+const cors = require('cors');
 var userController = require('../controllers/user.controller');
 var publicationController = require('../controllers/publication.controller');
 var transactionController = require('../controllers/transaction.controller');
 var mdAuth = require('../middlewares/authenticated'); 
 
-
+const corsOptions = {
+    origin: '*',  // o especifica el origen de tu aplicación
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+};
 
 api.post('/saveUser', userController.createUser);
 api.post('/login', userController.login);
@@ -16,7 +21,8 @@ api.post('/deleteUser/:idU',mdAuth.ensureAuth, userController.deleteUser);
 api.get('/getUsers', [mdAuth.ensureAuth, mdAuth.ensureAuthAdmin], userController.getUsers);
 
 api.post('/createPublication/:idU',mdAuth.ensureAuth, publicationController.createPublication);
-api.post('/updatePublication/:idU/:idP',mdAuth.ensureAuth, publicationController.updatePublication);
+//api.post('/updatePublication/:idU/:idP',mdAuth.ensureAuth, publicationController.updatePublication);
+api.post('/login', cors(corsOptions), userController.login);
 api.delete('/deletePublication/:idU/:idP',mdAuth.ensureAuth, publicationController.deletePublication);
 api.get('/getPublications/:idU',mdAuth.ensureAuth,publicationController.getPublications);
 
