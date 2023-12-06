@@ -77,9 +77,10 @@ async function createUser(req, res) {
  
                 if (userSaved) {
                     console.log('Usuario creado');
-                    return res.status(400).send({ message: 'Usuario creado correctamente' });
+                    return res.status(200).send({ message: 'Usuario creado correctamente', userSaved });
                 } else {
                     console.log('Usuario no creado');
+                    return res.status(500).send({ message: 'Usuario no creado'});
                 }
             }
         } catch (err) {
@@ -106,20 +107,15 @@ async function login(req, res) {
                     if (params.gettoken) {
                         console.log('Sesión iniciada');
                         return res.status(200).send({
-                            message: 'Sesión iniciada correctamente',
                             token: jwt.createToken(userFind),
-                            userId: userFind._id,
-                            username: userFind.username,
-                            name: userFind.name,
-                            phone: userFind.phone,
-                            email: userFind.email
+                            user: userFind
                         });
                     }
                 } else {
                     return res.status(404).send({ message: "Usuario o contraseña incorrecto(s)" });
                 }
             }else{
-                return res.status(404).send({ message: "Usuario no encontrado", message: params.username});
+                return res.status(404).send({ message: "Usuario no encontrado"});
             }
         } catch (err) {
             console.log('Error al buscar usuario', err);
