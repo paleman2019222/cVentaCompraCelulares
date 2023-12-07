@@ -21,6 +21,12 @@ async function buyObject(req, res) {
 
             return res.status(401).send({ message: 'No puedes comprar tu propio artículo' });
         } else {
+            if(params.quantity==="" ||params.quantity===0  ||params.quantity<0){
+                return res.status(401).send({ message: 'Ingrese un dato válido para la cantidad que desea comprar' });
+
+            }else{
+                
+
             const publicationFinded = await Publication.findById(publicationId);
             const purchaser = await User.findOne({_id:userId});
             const seller = await User.findOne({_id:publicationFinded.user});
@@ -61,6 +67,8 @@ async function buyObject(req, res) {
             } else {
                 return res.status(401).send({ message: 'Publicación no encontrada.' });
             }
+            }
+
         }  
     } catch (err) {
         console.error(err);
