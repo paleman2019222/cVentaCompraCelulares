@@ -15,9 +15,10 @@ async function buyObject(req, res) {
     }
 
     try {
-        const selfPublication = await Publication.findOne({ user: userId });
+        const selfPublication = await Publication.findOne({ _id: publicationId });
 
-        if (selfPublication) {
+        if (selfPublication.user==userId) {
+
             return res.status(401).send({ message: 'No puedes comprar tu propio artículo' });
         } else {
             const publicationFinded = await Publication.findById(publicationId);
@@ -76,7 +77,7 @@ async function getSells(req, res){
 
         const sellsFinded = await Transaction.find({idseller: userId});
         if(sellsFinded){
-            return res.status(200).send({message: 'Tus ventas: ', selss:sellsFinded});
+            return res.status(200).send({message: 'Tus ventas: ', sellsFinded});
         }
 }
 
@@ -89,22 +90,10 @@ async function getPurchases(req, res){
 
         const sellsFinded = await Transaction.find({idpurchaser: userId});
         if(sellsFinded){
-            return res.status(200).send({message: 'Tus Compras ', selss:sellsFinded});
+            return res.status(200).send({message: 'Tus Compras ', sellsFinded});
         }
 }
 
-async function getMyPublications(req, res){
-    let userId = req.params.idU;
-
-    if(userId != req.user.sub){
-        return res.status(401).send({message: 'No tienes permiso para realizar esta acción'});
-    }
-
-        const sellsFinded = await Publication.find({user: userId});
-        if(publicationsFinded){
-            return res.status(200).send({message: 'Tus Publicaciones ', publications:publicationsFinded});
-        }
-}
 
 async function getAllTransactions(req, res){
     let userId = req.params.idU;
@@ -127,7 +116,6 @@ module.exports = {
     buyObject,
     getSells,
     getPurchases,
-    getMyPublications,
     getAllTransactions
     
 

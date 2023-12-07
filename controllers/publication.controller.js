@@ -30,7 +30,7 @@ async function createPublication(req, res){
                 try{
                     const publication = await sale.save();
                     if(publication){
-                        return res.status(404).send({message: 'Publicación creada.', publication}); 
+                        return res.status(200).send({message: 'Publicación creada.', publication}); 
                     }else{
                         return res.status(500).send({message: 'Publicación no creada.'});           
                     }
@@ -126,25 +126,57 @@ async function deletePublication(req, res){
 }
 
 async function getPublications(req, res){
-        let userId = req.params.idU;
+    let userId = req.params.idU;
+  
+    if(userId != req.user.sub){
+      return res.status(403).send({message: 'No tienes permisos para realizar esta acción'});
+    }
+  
+    const activePublications = await Publication.find({status: true});
+  
+    if(activePublications && activePublications.length > 0){
+      res.status(200).send({message: 'Ofertas disponibles: ', activePublications});
+    }else{
+      res.status(401).send({message: 'No hay ofertas disponibles'});
+    }
+  }
 
-        if(userId!= req.user.sub){
-            return res.status(403).send({message: 'No tienes permisos para realizar esta acción'})
+  async function getMyPublications(req, res){
+    let userId = req.params.idU;
+
+    if(userId != req.user.sub){
+        return res.status(401).send({message: 'No tienes permiso para realizar esta acción'});
+    }
+
+        const publicationsFinded = await Publication.find({user: userId});
+        if(publicationsFinded){
+            return res.status(200).send({message: 'Tus Publicaciones ', publicationsFinded});
         }
+}
 
-        const allPublications = await Publication.find({});
+async function getPublication(req, res){
+    let userId = req.params.idU;
+    let pubId = req.params.idP;
+    if(userId != req.user.sub){
+      return res.status(403).send({message: 'No tienes permisos para realizar esta acción'});
+    }
+  
+    const publicationFinded = await Publication.findOne({_id: pubId});
+  
+    if(publicationFinded){
+      res.status(200).send({message: 'Publicación', publicationFinded});
+    }else{
+      res.status(401).send({message: 'No hay ofertas disponibles'});
+    }
+}
 
-        if(allPublications){
-            res.status(200).send({message: 'Ofertas disponibles: ', allPublications})
-        }else{
-            res.status(401).send({message: 'No hay ofertas disponibles'})
-        }
-    } 
-
+   
 module.exports = {
     createPublication,
     updatePublication,
     deletePublication,
-    getPublications
+    getPublications,
+    getMyPublications,
+    getPublication
 }
  

@@ -203,7 +203,10 @@ async function deleteUser(req, res){
                         return res.status(500).send({message: 'Error al comparar la contraseña'});
                     }else if(passwordCheck){
                         try {
-                            const userDeleted = await User.findByIdAndRemove(userId);   
+                            const userRemoved = await User.findByIdAndRemove(userId);  
+                            if(userRemoved){
+                                return res.status(200).send({message: 'Eliminado correctamente'});
+                            } 
                         } catch (error) {
                             return res.status(500).send({message: 'Error al eliminar el usuario'});
                         }
@@ -233,11 +236,28 @@ async function getUsers(req, res){
     }
 }
 
+async function getUser(req, res){
+    let idUser = req.params.idU;
+
+    try{
+        const userFinded = await User.findOne({_id:idUser});
+
+        if(userFinded){
+            return  res.status(200).send({message: 'Usuario enoontrado: ', userFinded});
+        }else{
+            return  res.status(404).send({message: 'Usuario no encontrado'});
+        }
+    }catch(err){
+        return  res.status(500).send({message: 'Error al buscar', err});
+    }
+}
+
 module.exports = {
     createInit,
     createUser,
     login,
     updateUser,
     deleteUser,
-    getUsers
+    getUsers,
+    getUser
 }
